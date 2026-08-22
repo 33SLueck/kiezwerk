@@ -1,0 +1,8 @@
+import type { ReactNode } from 'react';
+
+export interface TooltipProps {
+  content: ReactNode;
+  children: ReactNode;
+  position?: 'top' | 'right' | 'bottom' | 'left';
+  className?: string;
+}

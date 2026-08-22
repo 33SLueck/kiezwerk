@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kiezwerk-berlin-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+    ports:
+      - '${POSTGRES_PORT:?POSTGRES_PORT is required}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kiezwerk-berlin-app
+    restart: always
+    ports:
+      - '${PORT:?PORT is required}:3000'
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL_DOCKER:?DATABASE_URL_DOCKER is required}
+      - UPLOAD_DIR=/app/uploads
+      - MAX_UPLOAD_BYTES=${MAX_UPLOAD_BYTES:-5242880}
+      - REQUIRE_ADMIN_AUTH=${REQUIRE_ADMIN_AUTH:-true}
+      - NEXTAUTH_URL=http://localhost:${PORT}
+      - AUTH_SECRET=${AUTH_SECRET:?AUTH_SECRET is required — generate with: openssl rand -base64 32}
+      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-true}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-demo.admin@kiezwerk.example}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-DemoAdmin123!}
+      - NEXT_PUBLIC_SITE_URL=http://localhost:${PORT}
+      - NEXT_PUBLIC_SITE_NAME=KiezWerk Berlin
+      - RUN_DB_SEED=${RUN_DB_SEED:-true}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  uploads_data:

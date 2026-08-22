@@ -1,0 +1,25 @@
+@layer base {
+  .prose-base {
+    color: hsl(var(--foreground));
+    line-height: 1.7;
+  }
+
+  .prose-base h1,
+  .prose-base h2,
+  .prose-base h3,
+  .prose-base h4 {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .prose-base p {
+    color: hsl(var(--foreground));
+  }
+
+  .prose-base a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}

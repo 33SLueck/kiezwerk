@@ -1,0 +1,97 @@
+:root,
+.light {
+  /* Light, friendly surfaces — soft warm off-white, not cream/terracotta */
+  --background: 40 20% 98%;
+  --foreground: 210 10% 16%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 210 10% 16%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 10% 16%;
+
+  /* Anthracite accent */
+  --primary: 210 8% 22%;
+  --primary-foreground: 40 20% 98%;
+
+  --secondary: 40 12% 94%;
+  --secondary-foreground: 210 10% 16%;
+
+  --muted: 40 14% 95%;
+  --muted-foreground: 210 6% 40%;
+
+  --accent: 210 8% 92%;
+  --accent-foreground: 210 8% 22%;
+
+  --destructive: 0 72% 48%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 40 10% 88%;
+  --input: 40 10% 88%;
+  --ring: 210 8% 22%;
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 210 10% 10%;
+  --foreground: 40 20% 96%;
+
+  --card: 210 10% 14%;
+  --card-foreground: 40 20% 96%;
+
+  --popover: 210 10% 14%;
+  --popover-foreground: 40 20% 96%;
+
+  --primary: 40 20% 96%;
+  --primary-foreground: 210 8% 18%;
+
+  --secondary: 210 8% 20%;
+  --secondary-foreground: 40 20% 96%;
+
+  --muted: 210 8% 18%;
+  --muted-foreground: 210 5% 65%;
+
+  --accent: 210 8% 22%;
+  --accent-foreground: 40 20% 96%;
+
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 210 8% 22%;
+  --input: 210 8% 22%;
+  --ring: 40 20% 90%;
+}
+
+/* Before JS / without explicit .light: follow OS preference (Chrome + Cursor) */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: 210 10% 10%;
+    --foreground: 40 20% 96%;
+
+    --card: 210 10% 14%;
+    --card-foreground: 40 20% 96%;
+
+    --popover: 210 10% 14%;
+    --popover-foreground: 40 20% 96%;
+
+    --primary: 40 20% 96%;
+    --primary-foreground: 210 8% 18%;
+
+    --secondary: 210 8% 20%;
+    --secondary-foreground: 40 20% 96%;
+
+    --muted: 210 8% 18%;
+    --muted-foreground: 210 5% 65%;
+
+    --accent: 210 8% 22%;
+    --accent-foreground: 40 20% 96%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 8% 22%;
+    --input: 210 8% 22%;
+    --ring: 40 20% 90%;
+  }
+}
