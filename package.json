@@ -18,7 +18,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "build:seed-bundle": "esbuild prisma/seed.ts --bundle --platform=node --packages=external --outfile=prisma/seed.bundle.cjs",
+    "build:seed-bundle": "esbuild prisma/seed.ts --bundle --platform=node --outfile=prisma/seed.bundle.cjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

@@ -23,7 +23,7 @@ ENV NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
 RUN pnpm db:generate
 RUN pnpm build
 
-# Seed runtime deps for standalone + bundled seed script (no full node_modules in runner).
+# Seed runtime deps for standalone (app server bundle; seed script is self-contained).
 RUN cp -r node_modules/.pnpm/bcryptjs@3.0.3/node_modules/bcryptjs .next/standalone/node_modules/ \
   && cp -r node_modules/.pnpm/dotenv@16.6.1/node_modules/dotenv .next/standalone/node_modules/
 RUN pnpm run build:seed-bundle
