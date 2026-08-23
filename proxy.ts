@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
 import { authConfig } from './app/auth.config';
 
+
 const { auth } = NextAuth(authConfig);
 
 // SHA-256 hash of the static theme-init inline script in app/layout.tsx.
