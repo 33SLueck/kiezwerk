@@ -26,9 +26,13 @@ const pool = new Pool({ connectionString: url });
 NODE
 
 echo "[kiezwerk] prisma db push..."
-prisma db push --accept-data-loss --schema=./prisma/schema.prisma --url="$DATABASE_URL"
+if [ "${RUN_DB_ACCEPT_DATA_LOSS:-false}" = "true" ]; then
+  prisma db push --accept-data-loss --schema=./prisma/schema.prisma --url="$DATABASE_URL"
+else
+  prisma db push --schema=./prisma/schema.prisma --url="$DATABASE_URL"
+fi
 
-if [ "${RUN_DB_SEED:-true}" = "true" ]; then
+if [ "${RUN_DB_SEED:-false}" = "true" ]; then
   echo "[kiezwerk] seeding demo data..."
   tsx prisma/seed.ts
 fi

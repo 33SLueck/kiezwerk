@@ -1,0 +1,15 @@
+# Accepted-risk exceptions for Trivy. Keep this empty until a scan
+# produces a finding that is documented, time-bounded, and reviewed.
+#
+# Example:
+# vulnerabilities:
+#   - id: CVE-2023-44487
+#     statement: "Mitigated by WAF rate limiting at the ingress layer"
+#     expires: 2027-01-01
+# misconfigurations:
+#   - id: DS026
+#     statement: "HEALTHCHECK is provided by the orchestrator"
+#     expires: 2027-01-01
+
+vulnerabilities: []
+misconfigurations: []

@@ -1,0 +1,73 @@
+name: Container Security Scan
+
+on:
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - "docker-compose*.yml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "app/**"
+      - "src/**"
+      - "prisma/**"
+      - "trivy.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          skip-dirs: ".git,node_modules,.next,coverage,.trivycache"
+          version: v0.74.0
+          trivy-config: trivy.yaml
+          trivyignores: .trivyignore.yaml
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: kiezwerk:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=http://localhost:3002
+            NEXT_PUBLIC_SITE_NAME=KiezWerk Berlin
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: kiezwerk:${{ github.sha }}
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          version: v0.74.0
+          trivy-config: trivy.yaml
+          trivyignores: .trivyignore.yaml
+
+      - name: Run Trivy misconfiguration scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: config
+          scan-ref: .
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          version: v0.74.0
+          trivy-config: trivy.yaml
+          trivyignores: .trivyignore.yaml

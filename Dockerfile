@@ -13,6 +13,13 @@ RUN mkdir -p public uploads
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV CI=false
+
+# NEXT_PUBLIC_* must be present at build time (inlined into the client bundle).
+ARG NEXT_PUBLIC_SITE_URL=http://localhost:3002
+ARG NEXT_PUBLIC_SITE_NAME=KiezWerk Berlin
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
+
 RUN pnpm db:generate
 RUN pnpm build
 

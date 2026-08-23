@@ -33,8 +33,8 @@ export const CtaSection = ({
     <section className={getCtaSectionClasses(tone, className)}>
       <div className={getCtaSectionInnerClasses()}>
         <div className={getCtaSectionCardClasses()}>
-          <div className={getCtaSectionContentGridClasses()}>
-            <div className="flex flex-col gap-6">
+          <div className={getCtaSectionContentGridClasses(hasVisual)}>
+            <div className="flex min-w-0 flex-col gap-6">
               {eyebrow ? <p className={getCtaSectionEyebrowClasses()}>{eyebrow}</p> : null}
 
               <h2 className={getCtaSectionTitleClasses()}>{title}</h2>

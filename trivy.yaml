@@ -1,0 +1,15 @@
+# Shared Trivy policy for local scripts and GitHub Actions.
+# CLI flags / action inputs override these values when both are set.
+severity:
+  - CRITICAL
+  - HIGH
+exit-code: 1
+scan:
+  skip-dirs:
+    - .git
+    - node_modules
+    - .next
+    - coverage
+    - .trivycache
+vulnerability:
+  ignore-unfixed: true

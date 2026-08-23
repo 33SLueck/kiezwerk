@@ -34,11 +34,13 @@ docker compose up --build
 
 Danach:
 
-- Website: http://localhost:3000
-- Admin-Login: http://localhost:3000/admin/login
+- Website: http://localhost:3002
+- Admin-Login: http://localhost:3002/admin/login
   - Demo: `demo.admin@kiezwerk.example` / `DemoAdmin123!`
 
 Beim Start führt der Container `prisma db push` und den Demo-Seed aus (`RUN_DB_SEED=true`).
+
+**Ports (lokal + VPS):** App `127.0.0.1:3002`, Postgres `127.0.0.1:5436` — bewusst gewählt, um Kollisionen mit anderen VPS-Diensten zu vermeiden.
 
 ## Lokale Entwicklung (Host)
 
@@ -86,7 +88,65 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
+pnpm audit:ci
+pnpm scan:trivy          # lokaler Trivy-Scan (Docker erforderlich)
+pnpm scan:trivy:config   # nur Misconfiguration-Scan
 ```
+
+## Deploy to VPS (CI/CD)
+
+Push auf `main` startet GitHub Actions: Qualitätsprüfung → Docker-Build → Trivy-Scan → Push nach GHCR → SSH-Deploy auf den VPS.
+
+**Image:** `ghcr.io/33slueck/kiezwerk:latest`
+
+**VPS-Pfad:** `/opt/kiezwerk`
+
+### VPS-Ports
+
+| Service | Host | Container |
+|---------|------|-----------|
+| App | `127.0.0.1:3002` | `3000` |
+| Postgres | `127.0.0.1:5436` | `5432` |
+
+Reverse-Proxy (nginx/Caddy) zeigt auf `127.0.0.1:3002`. TLS liegt außerhalb dieses Repos.
+
+### Einmaliges VPS-Setup
+
+```bash
+sudo mkdir -p /opt/kiezwerk
+sudo chown "$USER":"$USER" /opt/kiezwerk
+cd /opt/kiezwerk
+
+# Aus dem Repo kopieren (oder git clone):
+#   docker-compose.prod.yml
+#   .env.production.example → .env
+
+cp .env.production.example .env
+# .env anpassen: Passwörter, AUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_SITE_URL
+
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+**Erstes Demo-Seed (optional, einmalig):**
+
+```bash
+docker compose -f docker-compose.prod.yml run --rm \
+  -e RUN_DB_SEED=true app tsx prisma/seed.ts
+```
+
+### GitHub Secrets (Repository)
+
+| Secret | Zweck |
+|--------|--------|
+| `SERVER_HOST` | VPS IP/Hostname |
+| `SERVER_USER` | SSH-Benutzer |
+| `SERVER_SSH_KEY` | Privater SSH-Key |
+| `GHCR_USERNAME` | GitHub-Benutzer für GHCR-Pull auf dem VPS |
+| `GHCR_TOKEN` | PAT mit `read:packages` |
+| `NEXT_PUBLIC_SITE_URL` | Öffentliche URL für CI-Build (z. B. `https://kiezwerk.example`) |
+
+Deploy kann auch manuell unter **Actions → Build and Deploy → Run workflow** ausgelöst werden.
 
 ## Upload-Konzept
 

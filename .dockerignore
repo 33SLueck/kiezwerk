@@ -1,8 +1,44 @@
+# Dependencies and build outputs (rebuilt inside Docker)
 node_modules
 .next
-.git
-uploads
+out
+dist
+build
+coverage
+.pnpm-store
+
+# Local caches and scan artifacts
+.trivycache
+trivy-results.*
+*.tsbuildinfo
+
+# Secrets (never in build context)
 .env
+.env.*
+!.env.example
+!.env.production.example
+
+# Version control
+.git
+
+# Docs and local tooling (not used by Dockerfile build)
+uploads
+vscode:/
 *.md
-Dockerfile*
-!.dockerignore
+!README.md
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE and OS artifacts
+.idea
+.vscode
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Keep scripts/ — docker-entrypoint.sh is required in the image

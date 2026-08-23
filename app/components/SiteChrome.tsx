@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Header, Footer, navigationConfig } from '@repo/ui';
+import { Header, Footer, navigationConfig, Button } from '@repo/ui';
 import { siteConfig } from '@/lib/config/site';
 
 export const SiteChrome = ({ children }: { children: React.ReactNode }) => {
@@ -13,6 +14,12 @@ export const SiteChrome = ({ children }: { children: React.ReactNode }) => {
   if (isAdmin) {
     return <>{children}</>;
   }
+
+  const headerActions = (
+    <Button asChild>
+      <Link href="/anfrage">Anfrage stellen</Link>
+    </Button>
+  );
 
   return (
     <>
@@ -35,6 +42,7 @@ export const SiteChrome = ({ children }: { children: React.ReactNode }) => {
           </span>
         }
         navItems={navItems}
+        actions={headerActions}
       />
       <main id="main-content" className="flex-grow flex flex-col">
         {children}

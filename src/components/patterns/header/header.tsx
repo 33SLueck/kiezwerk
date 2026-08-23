@@ -7,8 +7,9 @@ import {
   getHeaderInnerClasses,
   getNavListClasses,
   getNavLinkClasses,
+  getMobileMenuButtonClasses,
+  getDesktopActionsClasses,
 } from './header.styles';
-import { Button } from '@/components/ui/button';
 import { Link } from '@/components/ui/link';
 import { Menu, X } from 'lucide-react';
 
@@ -18,9 +19,9 @@ export const Header = ({ logo, navItems, actions, className }: HeaderProps) => {
   return (
     <header className={getHeaderClasses(className)}>
       <div className={getHeaderInnerClasses()}>
-        <div className="flex items-center gap-8">
+        <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-8">
           {logo ?? (
-            <Link href="/" className="text-xl font-bold text-foreground">
+            <Link href="/" className="shrink-0 text-xl font-bold text-foreground">
               Brand
             </Link>
           )}
@@ -32,44 +33,40 @@ export const Header = ({ logo, navItems, actions, className }: HeaderProps) => {
             ))}
           </nav>
         </div>
-        <div className="hidden md:flex items-center gap-4">
-          {actions ? (
-            actions
-          ) : (
-            <>
-              <Button variant="ghost">Sign In</Button>
-              <Button>Get Started</Button>
-            </>
-          )}
-        </div>
-        <div className="md:hidden">
+        {actions ? (
+          <div className={getDesktopActionsClasses()}>{actions}</div>
+        ) : null}
+        <div className={getMobileMenuButtonClasses()}>
           <button
             type="button"
             className="text-foreground focus:outline-none"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Menü schließen' : 'Menü öffnen'}
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
       {mobileMenuOpen ? (
-        <div className="md:hidden border-t border-border bg-background px-4 py-4 space-y-3">
-          {navItems.map((item, index) => (
-            <Link
-              key={index}
-              href={item.href}
-              className="block text-base font-medium text-muted-foreground hover:text-foreground"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <div className="pt-4 flex flex-col gap-2">
-            <Button variant="ghost" fullWidth>
-              Sign In
-            </Button>
-            <Button fullWidth>Get Started</Button>
-          </div>
+        <div className="border-t border-border bg-background px-4 py-4 lg:hidden">
+          <nav className="space-y-3">
+            {navItems.map((item, index) => (
+              <Link
+                key={index}
+                href={item.href}
+                className="block text-base font-medium text-muted-foreground hover:text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          {actions ? (
+            <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 [&>*]:w-full">
+              {actions}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </header>

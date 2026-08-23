@@ -14,7 +14,12 @@ const spacingClasses = 'py-16 md:py-24';
 const cardClasses = 'overflow-hidden rounded-3xl border border-border/60 shadow-sm';
 
 const contentGridClasses =
-  'grid gap-10 p-8 md:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)] md:p-12';
+  'grid gap-10 p-8 md:p-12';
+
+const contentGridWithVisualClasses =
+  'md:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]';
+
+const contentGridSingleColumnClasses = 'grid-cols-1';
 
 const eyebrowClasses = 'text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground';
 
@@ -40,8 +45,13 @@ export const getCtaSectionCardClasses = () => {
   return [cardClasses].filter(Boolean).join(' ');
 };
 
-export const getCtaSectionContentGridClasses = () => {
-  return [contentGridClasses].filter(Boolean).join(' ');
+export const getCtaSectionContentGridClasses = (hasVisual = false) => {
+  return [
+    contentGridClasses,
+    hasVisual ? contentGridWithVisualClasses : contentGridSingleColumnClasses,
+  ]
+    .filter(Boolean)
+    .join(' ');
 };
 
 export const getCtaSectionEyebrowClasses = () => {
