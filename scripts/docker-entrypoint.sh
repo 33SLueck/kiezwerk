@@ -34,7 +34,7 @@ fi
 
 if [ "${RUN_DB_SEED:-false}" = "true" ]; then
   echo "[kiezwerk] seeding demo data..."
-  tsx prisma/seed.ts
+  node prisma/seed.bundle.cjs
 fi
 
 echo "[kiezwerk] starting app..."

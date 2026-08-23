@@ -13,6 +13,9 @@ node_modules/
 # testing
 coverage/
 
+# Trivy local cache (never commit — DB is ~1GB+)
+.trivycache/
+
 # next.js
 .next/
 out/
@@ -55,3 +58,6 @@ uploads/
 
 # Prisma generated client is committed via generate on install
 src/db/generated/
+
+# Docker build artifact (bundled seed for production image)
+prisma/seed.bundle.cjs

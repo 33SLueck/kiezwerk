@@ -5,6 +5,8 @@ severity:
   - HIGH
 exit-code: 1
 scan:
+  scanners:
+    - vuln
   skip-dirs:
     - .git
     - node_modules

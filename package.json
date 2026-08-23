@@ -18,6 +18,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "build:seed-bundle": "esbuild prisma/seed.ts --bundle --platform=node --packages=external --outfile=prisma/seed.bundle.cjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -50,6 +51,7 @@
     "@types/react-dom": "^19",
     "@vitest/browser-playwright": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10",
+    "esbuild": "^0.28.2",
     "eslint": "^10.7.0",
     "eslint-config-next": "16.2.11",
     "eslint-config-prettier": "^10.1.8",
