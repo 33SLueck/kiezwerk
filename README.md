@@ -112,18 +112,24 @@ Reverse-Proxy (nginx/Caddy) zeigt auf `127.0.0.1:3002`. TLS liegt außerhalb die
 
 ### Einmaliges VPS-Setup
 
+Nur **`.env`** muss einmal auf dem Server liegen. `docker-compose.yml` wird bei jedem Deploy per CI nach `/opt/kiezwerk` synchronisiert.
+
 ```bash
 sudo mkdir -p /opt/kiezwerk
 sudo chown "$USER":"$USER" /opt/kiezwerk
 cd /opt/kiezwerk
 
-# Aus dem Repo kopieren (oder git clone):
-#   docker-compose.prod.yml
-#   .env.production.example → .env
-
 cp .env.production.example .env
 # .env anpassen: Passwörter, AUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_SITE_URL
+```
 
+Danach reicht ein Push auf `main` (oder **Actions → Build and Deploy → Run workflow**). CI pullt das GHCR-Image und startet die Container.
+
+Manueller Erststart (optional, falls CI noch nicht lief):
+
+```bash
+cd /opt/kiezwerk
+echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
@@ -131,8 +137,7 @@ docker compose -f docker-compose.prod.yml up -d
 **Erstes Demo-Seed (optional, einmalig):**
 
 ```bash
-docker compose -f docker-compose.prod.yml run --rm \
-  -e RUN_DB_SEED=true app tsx prisma/seed.ts
+docker compose run --rm -e RUN_DB_SEED=true app node prisma/seed.bundle.cjs
 ```
 
 ### GitHub Secrets (Repository)
