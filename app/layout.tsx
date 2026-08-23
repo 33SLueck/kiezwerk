@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { Syne, Source_Sans_3 } from 'next/font/google';
 import './globals.css';
 import { RootProviders } from '@repo/ui';
@@ -17,6 +18,8 @@ const body = Source_Sans_3({
   weight: ['400', '500', '600', '700'],
 });
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   ...defaultMetadata,
   title: defaultMetadata.title,
@@ -25,11 +28,14 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
 };
 
-const RootLayout = ({
+const RootLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
+  const headerList = await headers();
+  const nonce = headerList.get('x-nonce') ?? undefined;
+
   return (
     <html
       lang="de"
@@ -38,6 +44,7 @@ const RootLayout = ({
     >
       <head>
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme')||'system';var dark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.classList.remove('light','dark');r.classList.add(dark?'dark':'light');r.style.colorScheme=dark?'dark':'light';}catch(e){}})();`,
           }}

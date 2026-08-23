@@ -1,29 +1,21 @@
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import NextAuth from 'next-auth';
 import { authConfig } from './app/auth.config';
 
-
 const { auth } = NextAuth(authConfig);
 
-// SHA-256 hash of the static theme-init inline script in app/layout.tsx.
-// Re-run: node -e "const c=require('crypto'),s=`<script-content>`;console.log(c.createHash('sha256').update(s).digest('base64'))"
-// if the script ever changes.
-const THEME_SCRIPT_HASH = "'sha256-UTDNpV3RLpJd/VIYBUGaUU3q9Vk8USwo6CZHBnQXeBs='";
+const createNonce = (): string => Buffer.from(crypto.randomUUID()).toString('base64');
 
-const applySecurityHeaders = (response: NextResponse): NextResponse => {
-  const nonce = crypto.randomUUID();
-  response.headers.set('x-nonce', nonce);
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('X-DNS-Prefetch-Control', 'off');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+const buildContentSecurityPolicy = (nonce: string): string => {
+  const isDev = process.env.NODE_ENV === 'development';
+  const scriptSrc = isDev
+    ? `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`
+    : `'self' 'nonce-${nonce}' 'strict-dynamic'`;
 
-  // Content-Security-Policy
-  // script-src: only same-origin + the exact hash of the static theme script (no unsafe-inline).
-  const csp = [
+  return [
     `default-src 'self'`,
-    `script-src 'self' ${THEME_SCRIPT_HASH}`,
+    `script-src ${scriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `font-src 'self' https://fonts.gstatic.com`,
     `img-src 'self' data: https://images.unsplash.com https://*.cloudinary.com https://*.amazonaws.com`,
@@ -32,14 +24,42 @@ const applySecurityHeaders = (response: NextResponse): NextResponse => {
     `form-action 'self'`,
     `base-uri 'self'`,
   ].join('; ');
-  response.headers.set('Content-Security-Policy', csp);
+};
 
-  // HSTS — only in production to avoid breaking local http dev
+const applySecurityHeaders = (response: NextResponse, csp: string, nonce: string): NextResponse => {
+  response.headers.set('x-nonce', nonce);
+  response.headers.set('Content-Security-Policy', csp);
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('X-DNS-Prefetch-Control', 'off');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
   if (process.env.NODE_ENV === 'production') {
     response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   }
 
   return response;
+};
+
+const securePageResponse = (request: NextRequest): NextResponse => {
+  const nonce = createNonce();
+  const csp = buildContentSecurityPolicy(nonce);
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('Content-Security-Policy', csp);
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+
+  return applySecurityHeaders(response, csp, nonce);
+};
+
+const secureResponse = (response: NextResponse): NextResponse => {
+  const nonce = createNonce();
+  const csp = buildContentSecurityPolicy(nonce);
+  return applySecurityHeaders(response, csp, nonce);
 };
 
 const safeAdminCallbackPath = (pathname: string): string => {
@@ -58,7 +78,7 @@ export const proxy = auth(async (request) => {
     pathname === '/_global-error' ||
     pathname.includes('.')
   ) {
-    return applySecurityHeaders(NextResponse.next());
+    return securePageResponse(request);
   }
 
   const session = request.auth;
@@ -72,30 +92,28 @@ export const proxy = auth(async (request) => {
 
   if (isAuthRequired && isAdminApi) {
     if (!isLoggedIn || !isAdmin) {
-      return applySecurityHeaders(
-        NextResponse.json({ error: 'Nicht authentifiziert.' }, { status: 401 })
-      );
+      return secureResponse(NextResponse.json({ error: 'Nicht authentifiziert.' }, { status: 401 }));
     }
-    return applySecurityHeaders(NextResponse.next());
+    return securePageResponse(request);
   }
 
   if (isAuthRequired && isAdminUi) {
     if (!isLoggedIn && !isLoginPage) {
       const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('callbackUrl', safeAdminCallbackPath(pathname));
-      return applySecurityHeaders(NextResponse.redirect(loginUrl));
+      return secureResponse(NextResponse.redirect(loginUrl));
     }
 
     if (isLoggedIn && !isAdmin && !isLoginPage) {
-      return applySecurityHeaders(NextResponse.redirect(new URL('/', request.url)));
+      return secureResponse(NextResponse.redirect(new URL('/', request.url)));
     }
 
     if (isLoggedIn && isAdmin && isLoginPage) {
-      return applySecurityHeaders(NextResponse.redirect(new URL('/admin', request.url)));
+      return secureResponse(NextResponse.redirect(new URL('/admin', request.url)));
     }
   }
 
-  return applySecurityHeaders(NextResponse.next());
+  return securePageResponse(request);
 });
 
 export const config = {
