@@ -27,11 +27,13 @@ services:
     container_name: kiezwerk-app
     restart: always
     ports:
-      - '127.0.0.1:${PORT:-3002}:3000'
+      - '127.0.0.1:${KIEZWERK_HOST_PORT:-3002}:3000'
     env_file:
       - .env
     environment:
       - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
       - DATABASE_URL=${DATABASE_URL_DOCKER:?DATABASE_URL_DOCKER is required}
       - UPLOAD_DIR=/app/uploads
       - MAX_UPLOAD_BYTES=${MAX_UPLOAD_BYTES:-5242880}

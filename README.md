@@ -40,7 +40,7 @@ Danach:
 
 Beim Start führt der Container `prisma db push` und den Demo-Seed aus (`RUN_DB_SEED=true`).
 
-**Ports (lokal + VPS):** App `127.0.0.1:3002`, Postgres `127.0.0.1:5436` — bewusst gewählt, um Kollisionen mit anderen VPS-Diensten zu vermeiden.
+**Ports (lokal + VPS):** Host `KIEZWERK_HOST_PORT=3002` → Container `PORT=3000`. Postgres `127.0.0.1:5436`. **Nicht** `PORT=3002` in `.env` setzen — das würde Next.js im Container auf den falschen Port binden.
 
 ## Lokale Entwicklung (Host)
 
@@ -76,6 +76,7 @@ pnpm dev
 Siehe [`.env.example`](.env.example). Wichtige Keys:
 
 - `DATABASE_URL` / `DATABASE_URL_DOCKER`
+- `KIEZWERK_HOST_PORT` (Host, Standard `3002`) — nicht mit Container-`PORT` verwechseln
 - `UPLOAD_DIR`, `MAX_UPLOAD_BYTES`
 - `REQUIRE_ADMIN_AUTH`, `AUTH_SECRET`, `NEXTAUTH_URL`
 - `ADMIN_EMAIL`, `ADMIN_PASSWORD` (nur Demo, Seed)
@@ -103,12 +104,16 @@ Push auf `main` startet GitHub Actions: Qualitätsprüfung → Docker-Build → 
 
 ### VPS-Ports
 
-| Service | Host | Container |
-|---------|------|-----------|
-| App | `127.0.0.1:3002` | `3000` |
-| Postgres | `127.0.0.1:5436` | `5432` |
+| Variable / Mapping | Wert | Bedeutung |
+|--------------------|------|-----------|
+| `KIEZWERK_HOST_PORT` | `3002` | Host-Port (Nginx → `127.0.0.1:3002`) |
+| Container `PORT` | `3000` | Next.js lauscht intern (via Compose/Dockerfile) |
+| Postgres Host | `127.0.0.1:5436` | Host-Port für DB-Tools |
+| Postgres Container | `5432` | Intern im Compose-Netzwerk |
 
-Reverse-Proxy (nginx/Caddy) zeigt auf `127.0.0.1:3002`. TLS liegt außerhalb dieses Repos.
+Reverse-Proxy (nginx/Caddy): `proxy_pass http://127.0.0.1:3002;`. TLS liegt außerhalb dieses Repos.
+
+**Wichtig:** In der VPS-`.env` kein `PORT=3002` verwenden. Nur `KIEZWERK_HOST_PORT=3002`. Compose setzt `PORT=3000` und `HOSTNAME=0.0.0.0` im Container.
 
 ### Einmaliges VPS-Setup
 
@@ -121,6 +126,7 @@ cd /opt/kiezwerk
 
 cp .env.production.example .env
 # .env anpassen: Passwörter, AUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_SITE_URL
+# KIEZWERK_HOST_PORT=3002 setzen; PORT=3002 NICHT setzen (Container-Port ist 3000)
 ```
 
 Danach reicht ein Push auf `main` (oder **Actions → Build and Deploy → Run workflow**). CI pullt das GHCR-Image und startet die Container.
@@ -149,7 +155,7 @@ docker compose run --rm -e RUN_DB_SEED=true app node prisma/seed.bundle.cjs
 | `SERVER_SSH_KEY` | Privater SSH-Key |
 | `GHCR_USERNAME` | GitHub-Benutzer für GHCR-Pull auf dem VPS |
 | `GHCR_TOKEN` | PAT mit `read:packages` |
-| `NEXT_PUBLIC_SITE_URL` | Öffentliche URL für CI-Build (z. B. `https://kiezwerk.example`) |
+| `NEXT_PUBLIC_SITE_URL` | Öffentliche URL für CI-Build (z. B. `https://kiezwerk.lueckdigital.de`) |
 
 Deploy kann auch manuell unter **Actions → Build and Deploy → Run workflow** ausgelöst werden.
 
