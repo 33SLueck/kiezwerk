@@ -26,6 +26,8 @@ services:
     image: ghcr.io/33slueck/kiezwerk:latest
     container_name: kiezwerk-app
     restart: always
+    ports:
+      - "127.0.0.1:3002:3000"
     env_file:
       - .env
     environment:

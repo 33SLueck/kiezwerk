@@ -26,6 +26,8 @@ services:
         NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-KiezWerk Berlin}
     container_name: kiezwerk-berlin-app
     restart: always
+    ports:
+      - "127.0.0.1:3002:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
