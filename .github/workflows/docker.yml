@@ -171,6 +171,19 @@ jobs:
             cd /opt/kiezwerk
             cp -f docker-compose.prod.yml docker-compose.yml
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
-            docker compose pull
-            docker compose up -d
+            pull_ok=0
+            for attempt in 1 2 3; do
+              if docker compose pull; then
+                pull_ok=1
+                break
+              fi
+              echo "docker compose pull failed (attempt ${attempt}/3); retrying..."
+              docker image rm -f ghcr.io/33slueck/kiezwerk:latest || true
+              sleep 5
+            done
+            if [ "$pull_ok" -ne 1 ]; then
+              echo "docker compose pull failed after 3 attempts"
+              exit 1
+            fi
+            docker compose up -d --no-build
             docker image prune -f
