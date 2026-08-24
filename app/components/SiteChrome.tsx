@@ -16,9 +16,14 @@ export const SiteChrome = ({ children }: { children: React.ReactNode }) => {
   }
 
   const headerActions = (
-    <Button asChild>
-      <Link href="/anfrage">Anfrage stellen</Link>
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      <Button variant="secondary" asChild>
+        <Link href="/admin">Admin</Link>
+      </Button>
+      <Button asChild>
+        <Link href="/anfrage">Anfrage stellen</Link>
+      </Button>
+    </div>
   );
 
   return (

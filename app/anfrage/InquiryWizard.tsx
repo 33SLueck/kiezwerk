@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { SERVICE_TYPES } from '@/lib/inquiry-validation';
 
@@ -129,19 +130,27 @@ export const InquiryWizard = () => {
           <strong className="text-foreground">{result.referenceNumber}</strong>. Es wurde keine
           E-Mail versendet. Die Daten liegen nur in der lokalen Demo-Datenbank.
         </p>
-        <button
-          type="button"
-          className="mt-6 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          onClick={() => {
-            setResult(null);
-            setForm(initialState);
-            setFiles([]);
-            setStep(0);
-            setStatusMessage('');
-          }}
-        >
-          Weitere Demo-Anfrage
-        </button>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            href="/admin/anfragen"
+            className="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Anfragen im Admin ansehen
+          </Link>
+          <button
+            type="button"
+            className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={() => {
+              setResult(null);
+              setForm(initialState);
+              setFiles([]);
+              setStep(0);
+              setStatusMessage('');
+            }}
+          >
+            Weitere Demo-Anfrage
+          </button>
+        </div>
       </div>
     );
   }
