@@ -30,6 +30,11 @@
   --input: 40 10% 88%;
   --ring: 210 8% 22%;
 
+  /* Stable CTA band — anthracite in both themes (does not invert with --primary) */
+  --cta: 210 8% 22%;
+  --cta-foreground: 40 20% 98%;
+  --cta-muted: 210 8% 72%;
+
   --radius: 0.5rem;
 }
 
@@ -61,6 +66,10 @@
   --border: 210 8% 22%;
   --input: 210 8% 22%;
   --ring: 40 20% 90%;
+
+  --cta: 210 8% 22%;
+  --cta-foreground: 40 20% 98%;
+  --cta-muted: 210 8% 72%;
 }
 
 /* Before JS / without explicit .light: follow OS preference (Chrome + Cursor) */
@@ -93,5 +102,9 @@
     --border: 210 8% 22%;
     --input: 210 8% 22%;
     --ring: 40 20% 90%;
+
+    --cta: 210 8% 22%;
+    --cta-foreground: 40 20% 98%;
+    --cta-muted: 210 8% 72%;
   }
 }
